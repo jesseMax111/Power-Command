@@ -17,7 +17,7 @@ router.get("/me", requireAuth, async (req, res): Promise<void> => {
       return;
     }
     // Fetch from Clerk and create user
-    const clerkUser = await clerkClient(req).users.getUser(userId);
+    const clerkUser = await clerkClient.users.getUser(userId);
     const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || clerkUser.emailAddresses[0]?.emailAddress || "User";
     const email = clerkUser.emailAddresses[0]?.emailAddress || "";
     const [created] = await db.insert(usersTable).values({

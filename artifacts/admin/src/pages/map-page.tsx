@@ -14,11 +14,15 @@ export default function MapPage() {
   const { data: reports, isLoading } = useListReports({ status: "active", limit: 100 } as any);
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
-    let L: any;
+    let cancelled = false;
+
     import("leaflet").then((mod) => {
-      L = mod.default;
+      if (cancelled) return;
+      const L = mod.default;
       import("leaflet/dist/leaflet.css");
+
+      // Container may not be mounted yet, or map already created — bail safely.
+      if (!mapRef.current || mapInstanceRef.current) return;
 
       // Fix default icon paths
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -28,15 +32,20 @@ export default function MapPage() {
         shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
       });
 
-      const map = L.map(mapRef.current!).setView([-26.2041, 28.0473], 11);
+      const map = L.map(mapRef.current).setView([-26.2041, 28.0473], 11);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
+        maxZoom: 19,
       }).addTo(map);
 
       mapInstanceRef.current = map;
+
+      // Fix sizing issues when the container becomes visible after mount.
+      setTimeout(() => map.invalidateSize(), 0);
     });
 
     return () => {
+      cancelled = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
