@@ -5,6 +5,8 @@ import notificationsRouter from "./notifications";
 import statisticsRouter from "./statistics";
 import savedLocationsRouter from "./savedLocations";
 import usersRouter from "./users";
+import adminRouter from "./admin";
+import pushTokensRouter from "./pushTokens";
 
 const router: IRouter = Router();
 
@@ -14,5 +16,7 @@ router.use(reportsRouter);
 router.use(notificationsRouter);
 router.use(statisticsRouter);
 router.use(savedLocationsRouter);
+router.use(adminRouter);
+router.use(pushTokensRouter);
 
 export default router;

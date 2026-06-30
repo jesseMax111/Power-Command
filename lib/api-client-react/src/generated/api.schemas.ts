@@ -152,6 +152,99 @@ export interface CreateSavedLocationRequest {
   address?: string;
 }
 
+export type PushTokenInputPlatform = typeof PushTokenInputPlatform[keyof typeof PushTokenInputPlatform];
+
+
+export const PushTokenInputPlatform = {
+  ios: 'ios',
+  android: 'android',
+} as const;
+
+export interface PushTokenInput {
+  token: string;
+  platform?: PushTokenInputPlatform;
+}
+
+export interface PushTokenResult {
+  ok: boolean;
+}
+
+export type AdminReportType = typeof AdminReportType[keyof typeof AdminReportType];
+
+
+export const AdminReportType = {
+  outage: 'outage',
+  restoration: 'restoration',
+  transformer: 'transformer',
+} as const;
+
+export type AdminReportStatus = typeof AdminReportStatus[keyof typeof AdminReportStatus];
+
+
+export const AdminReportStatus = {
+  active: 'active',
+  resolved: 'resolved',
+} as const;
+
+export interface AdminReport {
+  id: number;
+  userId: string;
+  /** @nullable */
+  userName?: string | null;
+  type: AdminReportType;
+  status: AdminReportStatus;
+  latitude: number;
+  longitude: number;
+  /** @nullable */
+  address?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  faultType?: string | null;
+  confirmations: number;
+  disputes: number;
+  confidence: number;
+  verified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /** @nullable */
+  resolvedAt?: string | null;
+}
+
+export interface AdminReportList {
+  reports: AdminReport[];
+  total: number;
+}
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  reputation: number;
+  reportCount: number;
+  createdAt: string;
+}
+
+export interface AdminUserList {
+  users: AdminUser[];
+  total: number;
+}
+
+export interface AdminStatistics {
+  totalReports: number;
+  activeReports: number;
+  resolvedReports: number;
+  totalUsers: number;
+  outageReports: number;
+  restorationReports: number;
+  transformerReports: number;
+  verifiedReports: number;
+  reportsToday: number;
+  reportsThisWeek: number;
+}
+
 export type ListReportsParams = {
 lat?: number;
 lng?: number;
@@ -184,5 +277,34 @@ export const ListReportsStatus = {
 export type GetStatisticsParams = {
 lat?: number;
 lng?: number;
+};
+
+export type AdminListReportsParams = {
+status?: AdminListReportsStatus;
+type?: AdminListReportsType;
+limit?: number;
+offset?: number;
+};
+
+export type AdminListReportsStatus = typeof AdminListReportsStatus[keyof typeof AdminListReportsStatus];
+
+
+export const AdminListReportsStatus = {
+  active: 'active',
+  resolved: 'resolved',
+} as const;
+
+export type AdminListReportsType = typeof AdminListReportsType[keyof typeof AdminListReportsType];
+
+
+export const AdminListReportsType = {
+  outage: 'outage',
+  restoration: 'restoration',
+  transformer: 'transformer',
+} as const;
+
+export type AdminListUsersParams = {
+limit?: number;
+offset?: number;
 };
 

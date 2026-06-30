@@ -1,7 +1,46 @@
 import { Router } from "express";
-import { db, reportsTable, verificationsTable, notificationsTable, savedLocationsTable } from "@workspace/db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { db, reportsTable, verificationsTable, notificationsTable, savedLocationsTable, pushTokensTable } from "@workspace/db";
+import { eq, desc, and, sql, inArray } from "drizzle-orm";
 import { requireAuth } from "../middlewares/requireAuth";
+import { logger } from "../lib/logger";
+
+async function sendExpoPushNotifications(
+  notifs: Array<{ userId: string; title: string; body: string }>,
+  senderUserId: string,
+): Promise<void> {
+  const userIds = [...new Set(notifs.map((n) => n.userId))];
+  if (userIds.length === 0) return;
+
+  const tokens = await db
+    .select()
+    .from(pushTokensTable)
+    .where(inArray(pushTokensTable.userId, userIds));
+
+  if (tokens.length === 0) return;
+
+  const messages = tokens.map((t) => {
+    const notif = notifs.find((n) => n.userId === t.userId);
+    return {
+      to: t.token,
+      title: notif?.title ?? "PowerPulse",
+      body: notif?.body ?? "",
+      sound: "default",
+    };
+  });
+
+  try {
+    const res = await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(messages),
+    });
+    if (!res.ok) {
+      logger.warn({ status: res.status }, "Expo push API returned non-OK");
+    }
+  } catch (err) {
+    logger.error({ err }, "Failed to send Expo push notifications");
+  }
+}
 
 const router = Router();
 
@@ -91,7 +130,11 @@ router.post("/reports", requireAuth, async (req, res): Promise<void> => {
         notifs.push({ userId: loc.userId, title: titles[type] || "New Report", body: `New ${type} report near ${loc.name}` });
       }
     }
-    if (notifs.length > 0) await db.insert(notificationsTable).values(notifs);
+    if (notifs.length > 0) {
+      await db.insert(notificationsTable).values(notifs);
+      // Send Expo push notifications for each affected user
+      sendExpoPushNotifications(notifs, userId).catch(() => {});
+    }
 
     res.status(201).json(report);
   } catch (err) {

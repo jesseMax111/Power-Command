@@ -319,3 +319,95 @@ export const DeleteSavedLocationParams = zod.object({
 export const DeleteSavedLocationResponse = zod.void()
 
 
+/**
+ * @summary Register or update a push notification token
+ */
+export const RegisterPushTokenBody = zod.object({
+  "token": zod.string(),
+  "platform": zod.enum(['ios', 'android']).optional()
+})
+
+export const RegisterPushTokenResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary List all reports (admin)
+ */
+export const adminListReportsQueryLimitDefault = 100;
+export const adminListReportsQueryOffsetDefault = 0;
+
+export const AdminListReportsQueryParams = zod.object({
+  "status": zod.enum(['active', 'resolved']).optional(),
+  "type": zod.enum(['outage', 'restoration', 'transformer']).optional(),
+  "limit": zod.coerce.number().default(adminListReportsQueryLimitDefault),
+  "offset": zod.coerce.number().default(adminListReportsQueryOffsetDefault)
+})
+
+export const AdminListReportsResponse = zod.object({
+  "reports": zod.array(zod.object({
+  "id": zod.number(),
+  "userId": zod.string(),
+  "userName": zod.string().nullish(),
+  "type": zod.enum(['outage', 'restoration', 'transformer']),
+  "status": zod.enum(['active', 'resolved']),
+  "latitude": zod.number(),
+  "longitude": zod.number(),
+  "address": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "faultType": zod.string().nullish(),
+  "confirmations": zod.number(),
+  "disputes": zod.number(),
+  "confidence": zod.number(),
+  "verified": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date(),
+  "resolvedAt": zod.coerce.date().nullish()
+})),
+  "total": zod.number()
+})
+
+
+/**
+ * @summary List all users (admin)
+ */
+export const adminListUsersQueryLimitDefault = 100;
+export const adminListUsersQueryOffsetDefault = 0;
+
+export const AdminListUsersQueryParams = zod.object({
+  "limit": zod.coerce.number().default(adminListUsersQueryLimitDefault),
+  "offset": zod.coerce.number().default(adminListUsersQueryOffsetDefault)
+})
+
+export const AdminListUsersResponse = zod.object({
+  "users": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "phone": zod.string().nullish(),
+  "reputation": zod.number(),
+  "reportCount": zod.number(),
+  "createdAt": zod.coerce.date()
+})),
+  "total": zod.number()
+})
+
+
+/**
+ * @summary Get global platform statistics (admin)
+ */
+export const AdminGetStatisticsResponse = zod.object({
+  "totalReports": zod.number(),
+  "activeReports": zod.number(),
+  "resolvedReports": zod.number(),
+  "totalUsers": zod.number(),
+  "outageReports": zod.number(),
+  "restorationReports": zod.number(),
+  "transformerReports": zod.number(),
+  "verifiedReports": zod.number(),
+  "reportsToday": zod.number(),
+  "reportsThisWeek": zod.number()
+})
+
+

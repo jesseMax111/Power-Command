@@ -20,12 +20,19 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminListReportsParams,
+  AdminListUsersParams,
+  AdminReportList,
+  AdminStatistics,
+  AdminUserList,
   CreateReportRequest,
   CreateSavedLocationRequest,
   GetStatisticsParams,
   HealthStatus,
   ListReportsParams,
   Notification,
+  PushTokenInput,
+  PushTokenResult,
   Report,
   SavedLocation,
   Statistics,
@@ -1176,4 +1183,319 @@ export const useDeleteSavedLocation = <TError = ErrorType<void>,
       > => {
       return useMutation(getDeleteSavedLocationMutationOptions(options));
     }
+
+export const getRegisterPushTokenUrl = () => {
+
+
+
+
+  return `/api/push-tokens`
+}
+
+/**
+ * @summary Register or update a push notification token
+ */
+export const registerPushToken = async (pushTokenInput: PushTokenInput, options?: RequestInit): Promise<PushTokenResult> => {
+
+  return customFetch<PushTokenResult>(getRegisterPushTokenUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(pushTokenInput)
+  }
+);}
+
+
+
+
+export const getRegisterPushTokenMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerPushToken>>, TError,{data: BodyType<PushTokenInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof registerPushToken>>, TError,{data: BodyType<PushTokenInput>}, TContext> => {
+
+const mutationKey = ['registerPushToken'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof registerPushToken>>, {data: BodyType<PushTokenInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  registerPushToken(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RegisterPushTokenMutationResult = NonNullable<Awaited<ReturnType<typeof registerPushToken>>>
+    export type RegisterPushTokenMutationBody = BodyType<PushTokenInput>
+    export type RegisterPushTokenMutationError = ErrorType<void>
+
+    /**
+ * @summary Register or update a push notification token
+ */
+export const useRegisterPushToken = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof registerPushToken>>, TError,{data: BodyType<PushTokenInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof registerPushToken>>,
+        TError,
+        {data: BodyType<PushTokenInput>},
+        TContext
+      > => {
+      return useMutation(getRegisterPushTokenMutationOptions(options));
+    }
+
+export const getAdminListReportsUrl = (params?: AdminListReportsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/reports?${stringifiedParams}` : `/api/admin/reports`
+}
+
+/**
+ * @summary List all reports (admin)
+ */
+export const adminListReports = async (params?: AdminListReportsParams, options?: RequestInit): Promise<AdminReportList> => {
+
+  return customFetch<AdminReportList>(getAdminListReportsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListReportsQueryKey = (params?: AdminListReportsParams,) => {
+    return [
+    `/api/admin/reports`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListReportsQueryOptions = <TData = Awaited<ReturnType<typeof adminListReports>>, TError = ErrorType<void>>(params?: AdminListReportsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListReportsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListReports>>> = ({ signal }) => adminListReports(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListReports>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListReportsQueryResult = NonNullable<Awaited<ReturnType<typeof adminListReports>>>
+export type AdminListReportsQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all reports (admin)
+ */
+
+export function useAdminListReports<TData = Awaited<ReturnType<typeof adminListReports>>, TError = ErrorType<void>>(
+ params?: AdminListReportsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListReports>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListReportsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminListUsersUrl = (params?: AdminListUsersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/users?${stringifiedParams}` : `/api/admin/users`
+}
+
+/**
+ * @summary List all users (admin)
+ */
+export const adminListUsers = async (params?: AdminListUsersParams, options?: RequestInit): Promise<AdminUserList> => {
+
+  return customFetch<AdminUserList>(getAdminListUsersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminListUsersQueryKey = (params?: AdminListUsersParams,) => {
+    return [
+    `/api/admin/users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getAdminListUsersQueryOptions = <TData = Awaited<ReturnType<typeof adminListUsers>>, TError = ErrorType<void>>(params?: AdminListUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminListUsersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminListUsers>>> = ({ signal }) => adminListUsers(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminListUsersQueryResult = NonNullable<Awaited<ReturnType<typeof adminListUsers>>>
+export type AdminListUsersQueryError = ErrorType<void>
+
+
+/**
+ * @summary List all users (admin)
+ */
+
+export function useAdminListUsers<TData = Awaited<ReturnType<typeof adminListUsers>>, TError = ErrorType<void>>(
+ params?: AdminListUsersParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminListUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminListUsersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdminGetStatisticsUrl = () => {
+
+
+
+
+  return `/api/admin/statistics`
+}
+
+/**
+ * @summary Get global platform statistics (admin)
+ */
+export const adminGetStatistics = async ( options?: RequestInit): Promise<AdminStatistics> => {
+
+  return customFetch<AdminStatistics>(getAdminGetStatisticsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getAdminGetStatisticsQueryKey = () => {
+    return [
+    `/api/admin/statistics`
+    ] as const;
+    }
+
+
+export const getAdminGetStatisticsQueryOptions = <TData = Awaited<ReturnType<typeof adminGetStatistics>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetStatistics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getAdminGetStatisticsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof adminGetStatistics>>> = ({ signal }) => adminGetStatistics({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof adminGetStatistics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type AdminGetStatisticsQueryResult = NonNullable<Awaited<ReturnType<typeof adminGetStatistics>>>
+export type AdminGetStatisticsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get global platform statistics (admin)
+ */
+
+export function useAdminGetStatistics<TData = Awaited<ReturnType<typeof adminGetStatistics>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof adminGetStatistics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getAdminGetStatisticsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
