@@ -3,20 +3,31 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PowerPulse API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: reports
+    description: Power status reports
+  - name: verifications
+    description: Report verifications
+  - name: notifications
+    description: User notifications
+  - name: statistics
+    description: Neighborhood statistics
+  - name: saved-locations
+    description: Saved locations
+  - name: users
+    description: User profile
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +35,324 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /me:
+    get:
+      operationId: getMe
+      tags: [users]
+      summary: Get current user profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+    put:
+      operationId: updateMe
+      tags: [users]
+      summary: Update current user profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserProfileRequest"
+      responses:
+        "200":
+          description: Updated user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+
+  /reports:
+    get:
+      operationId: listReports
+      tags: [reports]
+      summary: List power reports with optional geo filter
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lng
+          in: query
+          schema:
+            type: number
+        - name: radius
+          in: query
+          description: Radius in km
+          schema:
+            type: number
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [outage, restoration, transformer]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, resolved]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Create a new power report
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReportRequest"
+      responses:
+        "201":
+          description: Created report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "401":
+          description: Unauthorized
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      summary: Get a report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateReport
+      tags: [reports]
+      summary: Update a report (mark resolved, add notes)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReportRequest"
+      responses:
+        "200":
+          description: Updated report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteReport
+      tags: [reports]
+      summary: Delete a report
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+
+  /reports/{id}/verify:
+    post:
+      operationId: verifyReport
+      tags: [verifications]
+      summary: Confirm or dispute a report
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyReportRequest"
+      responses:
+        "200":
+          description: Updated report with new confidence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "401":
+          description: Unauthorized
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: Get notifications for the current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+        "401":
+          description: Unauthorized
+
+  /notifications/{id}:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark a notification as read
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "401":
+          description: Unauthorized
+
+  /statistics:
+    get:
+      operationId: getStatistics
+      tags: [statistics]
+      summary: Get neighborhood electricity statistics
+      parameters:
+        - name: lat
+          in: query
+          schema:
+            type: number
+        - name: lng
+          in: query
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Neighborhood statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Statistics"
+
+  /saved-locations:
+    get:
+      operationId: listSavedLocations
+      tags: [saved-locations]
+      summary: List saved locations for the current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: List of saved locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SavedLocation"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createSavedLocation
+      tags: [saved-locations]
+      summary: Save a location
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSavedLocationRequest"
+      responses:
+        "201":
+          description: Created saved location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SavedLocation"
+        "401":
+          description: Unauthorized
+
+  /saved-locations/{id}:
+    delete:
+      operationId: deleteSavedLocation
+      tags: [saved-locations]
+      summary: Delete a saved location
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +362,236 @@ components:
       required:
         - status
 
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+          nullable: true
+        photo:
+          type: string
+          nullable: true
+        reputation:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - reputation
+        - createdAt
+
+    UpdateUserProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        photo:
+          type: string
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        userName:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum: [outage, restoration, transformer]
+        status:
+          type: string
+          enum: [active, resolved]
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        faultType:
+          type: string
+          nullable: true
+        confirmations:
+          type: integer
+        disputes:
+          type: integer
+        confidence:
+          type: integer
+        verified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - userId
+        - type
+        - status
+        - latitude
+        - longitude
+        - confirmations
+        - disputes
+        - confidence
+        - verified
+        - createdAt
+        - updatedAt
+
+    CreateReportRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [outage, restoration, transformer]
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+        description:
+          type: string
+        faultType:
+          type: string
+      required:
+        - type
+        - latitude
+        - longitude
+
+    UpdateReportRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [active, resolved]
+        description:
+          type: string
+        resolvedAt:
+          type: string
+          format: date-time
+
+    VerifyReportRequest:
+      type: object
+      properties:
+        vote:
+          type: string
+          enum: [confirm, dispute]
+      required:
+        - vote
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - title
+        - body
+        - read
+        - createdAt
+
+    Statistics:
+      type: object
+      properties:
+        reliabilityPercent:
+          type: number
+        avgOutageDurationMinutes:
+          type: number
+        monthlyOutages:
+          type: integer
+        longestOutageMinutes:
+          type: number
+        currentStatus:
+          type: string
+          enum: [available, outage, unstable, unknown]
+        activeReports:
+          type: integer
+        totalReports:
+          type: integer
+      required:
+        - reliabilityPercent
+        - avgOutageDurationMinutes
+        - monthlyOutages
+        - longestOutageMinutes
+        - currentStatus
+        - activeReports
+        - totalReports
+
+    SavedLocation:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - name
+        - latitude
+        - longitude
+        - createdAt
+
+    CreateSavedLocationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+      required:
+        - name
+        - latitude
+        - longitude

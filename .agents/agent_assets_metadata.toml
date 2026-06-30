@@ -1,0 +1,8 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "hqgFvxBijMwMgYPZONNRG"
+uri = "file://artifacts/powerpulse/assets/images/icon.png"
+type = "image"
+title = "powerpulse app icon"

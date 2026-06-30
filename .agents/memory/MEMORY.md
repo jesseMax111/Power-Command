@@ -1,0 +1,2 @@
+- [Maps native-only pattern](maps-native-only.md) — react-native-maps must be native-only; use .native.tsx + Metro stub to exclude from web builds
+- [Clerk Expo proxy setup](clerk-expo-proxy.md) — Expo apps auth through /api/__clerk proxy; EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY set in dev script from $CLERK_PUBLISHABLE_KEY

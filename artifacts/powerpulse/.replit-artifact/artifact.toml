@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "PowerPulse"
+version = "1.0.0"
+id = "artifacts/powerpulse"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 22511
+
+[services.development]
+run = "pnpm --filter @workspace/powerpulse run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/powerpulse", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/powerpulse", "run", "serve" ]
+
+[services.env]
+PORT = "22511"
+BASE_PATH = "/"

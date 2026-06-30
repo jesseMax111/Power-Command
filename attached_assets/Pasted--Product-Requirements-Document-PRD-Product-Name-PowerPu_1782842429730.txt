@@ -1,0 +1,537 @@
+# Product Requirements Document (PRD)
+
+## Product Name
+
+**PowerPulse**
+
+## Version
+
+1.0 (MVP)
+
+---
+
+# Overview
+
+PowerPulse is a community-driven mobile application that enables users to report and monitor electricity availability in real time. Instead of relying on utility companies for updates, users contribute live reports that help everyone know whether electricity is available, when outages started, when power was restored, and whether infrastructure such as transformers has failed.
+
+The app should provide a live map of electricity status, crowd-verified reports, outage history, and notifications for saved locations.
+
+---
+
+# Problem
+
+People living in areas with unreliable electricity constantly ask questions like:
+
+* Is power out only in my house?
+* Has anyone nearby gotten electricity?
+* How long has the outage lasted?
+* Did the transformer explode?
+* Is there any official update?
+
+Currently, these answers are scattered across WhatsApp groups, phone calls, Facebook posts, or word of mouth.
+
+PowerPulse centralizes this information into one platform.
+
+---
+
+# Goals
+
+### User Goals
+
+* Know whether electricity is available.
+* Report outages in seconds.
+* Receive restoration notifications.
+* Track outage duration.
+* Report damaged transformers.
+* See live electricity status nearby.
+
+### Business Goals
+
+* Build a trusted community.
+* Become the largest crowdsourced electricity dataset.
+* Partner with electricity distribution companies.
+* Offer premium analytics.
+
+---
+
+# Target Users
+
+* Homeowners
+* Students
+* Small businesses
+* Landlords
+* Utility companies
+* Local governments
+
+---
+
+# MVP Features
+
+## 1. Authentication
+
+Users can:
+
+* Register
+* Login
+* Reset password
+
+Supported providers:
+
+* Email
+* Google
+* Apple (future)
+
+---
+
+## 2. User Profile
+
+Fields
+
+* Name
+* Email
+* Phone (optional)
+* Profile photo
+* Reputation score
+
+---
+
+## 3. Home Dashboard
+
+Shows
+
+* Current electricity status
+* Current outage duration
+* Nearby reports
+* Transformer alerts
+* Reliability score
+* Recent activity
+
+---
+
+## 4. Report Power Outage
+
+User taps
+
+"Power Out"
+
+Form
+
+* Location (GPS)
+* Manual address (optional)
+* Time
+* Notes
+* Upload photo (optional)
+
+Submit report.
+
+---
+
+## 5. Report Power Restoration
+
+Button
+
+"Power Restored"
+
+Form
+
+* Confirm location
+* Confirm restoration time
+
+The backend closes the outage and calculates duration.
+
+---
+
+## 6. Report Transformer Fault
+
+Fault types
+
+* Explosion
+* Smoke
+* Fire
+* Fallen pole
+* Broken cable
+* Oil leak
+* Sparking
+
+Optional
+
+* Images
+* Videos
+* Notes
+
+---
+
+## 7. Live Community Map
+
+Pins
+
+🟢 Electricity Available
+
+🔴 Power Out
+
+⚫ Transformer Fault
+
+🟡 Unstable Supply
+
+Filters
+
+* Today
+* Last Hour
+* Utility
+* Neighborhood
+
+---
+
+## 8. Community Verification
+
+Every report can be
+
+* Confirmed
+* Disputed
+
+Each confirmation increases confidence.
+
+Reports automatically become verified after reaching a confidence threshold.
+
+---
+
+## 9. Saved Locations
+
+Users save
+
+* Home
+* Office
+* School
+
+Notifications are sent whenever the status changes.
+
+---
+
+## 10. Notifications
+
+Trigger notifications for
+
+* Power restored
+* New outage
+* Transformer issue
+* Maintenance announcement
+
+---
+
+## 11. Outage History
+
+Display
+
+* Start time
+* End time
+* Duration
+* Cause (if known)
+* Number of confirmations
+
+---
+
+## 12. Neighborhood Statistics
+
+Show
+
+* Reliability %
+* Average outage duration
+* Monthly outages
+* Longest outage
+* Current status
+
+---
+
+# User Flow
+
+## First Launch
+
+```
+Open App
+
+↓
+
+Create Account
+
+↓
+
+Allow Location
+
+↓
+
+Save Home Location
+
+↓
+
+Dashboard
+```
+
+---
+
+## Report Outage
+
+```
+Dashboard
+
+↓
+
+Tap "Power Out"
+
+↓
+
+Confirm Location
+
+↓
+
+Submit
+
+↓
+
+Visible on Map
+
+↓
+
+Nearby Users Notified
+```
+
+---
+
+## Report Restoration
+
+```
+Dashboard
+
+↓
+
+Tap "Power Restored"
+
+↓
+
+Submit
+
+↓
+
+Outage Closed
+
+↓
+
+Duration Calculated
+```
+
+---
+
+# Database Schema
+
+## User
+
+```
+id
+name
+email
+phone
+photo
+reputation
+created_at
+```
+
+---
+
+## Report
+
+```
+id
+user_id
+type
+status
+latitude
+longitude
+address
+description
+created_at
+updated_at
+```
+
+Types
+
+* outage
+* restoration
+* transformer
+
+---
+
+## Verification
+
+```
+id
+report_id
+user_id
+vote
+created_at
+```
+
+Vote
+
+* confirm
+* dispute
+
+---
+
+## SavedLocation
+
+```
+id
+user_id
+name
+latitude
+longitude
+address
+```
+
+---
+
+## Notification
+
+```
+id
+user_id
+title
+body
+read
+created_at
+```
+
+---
+
+# API Endpoints
+
+Authentication
+
+```
+POST /register
+POST /login
+POST /logout
+```
+
+Users
+
+```
+GET /me
+PUT /me
+```
+
+Reports
+
+```
+POST /reports
+GET /reports
+GET /reports/:id
+PATCH /reports/:id
+DELETE /reports/:id
+```
+
+Verification
+
+```
+POST /reports/:id/verify
+```
+
+Notifications
+
+```
+GET /notifications
+PATCH /notifications/:id
+```
+
+Statistics
+
+```
+GET /statistics
+```
+
+---
+
+# Tech Stack
+
+### Frontend
+
+* React Native (Expo)
+* Flutter (alternative)
+
+### Backend
+
+* Supabase
+* Firebase
+* Node.js + NestJS
+
+### Database
+
+* PostgreSQL
+
+### Storage
+
+* Supabase Storage
+
+### Authentication
+
+* Supabase Auth
+
+### Maps
+
+* Google Maps
+* Mapbox
+
+### Notifications
+
+* Firebase Cloud Messaging
+
+---
+
+# Screens
+
+1. Splash Screen
+2. Login
+3. Register
+4. Home Dashboard
+5. Live Map
+6. Report Outage
+7. Report Restoration
+8. Report Transformer Fault
+9. Notifications
+10. Saved Locations
+11. Statistics
+12. Profile
+13. Settings
+
+---
+
+# Future Features
+
+* AI outage prediction
+* Weather correlation
+* Smart meter integration
+* Utility company dashboard
+* Public API
+* Community chat
+* Scheduled maintenance alerts
+* Offline reporting
+* Anonymous reporting mode
+* Solar and generator recommendations
+
+---
+
+# Success Metrics
+
+* Daily Active Users
+* Number of outage reports per day
+* Average report verification time
+* Notification open rate
+* User retention (30-day)
+* Number of verified reports
+* Map accuracy
+* Community growth
+
+---
+
+# Vibe Coding Prompt
+
+> Build a modern cross-platform mobile app called **PowerPulse** using React Native (Expo), TypeScript, NativeWind, Supabase (Authentication, PostgreSQL, Realtime, Storage), and React Query. The app enables users to report electricity outages, power restorations, and transformer faults. It should include secure authentication, GPS-based reporting, an interactive map with color-coded status markers, real-time updates using Supabase Realtime, community verification (confirm/dispute reports), saved locations with push notifications, outage history, neighborhood reliability statistics, and a clean, minimalist UI inspired by Google Maps and Notion. Structure the project with scalable feature-based folders, reusable components, offline support for queued reports, and production-ready architecture suitable for future AI prediction and utility company integrations.
