@@ -1,6 +1,6 @@
 kind = "mobile"
-previewPath = "/"
-title = "PowerPulse"
+previewPath = "/mobile/"
+title = "PowerPulse Mobile"
 version = "1.0.0"
 id = "artifacts/powerpulse"
 
@@ -10,7 +10,7 @@ version = "1.0.0"
 
 [[services]]
 name = "expo"
-paths = [ "/" ]
+paths = [ "/mobile/" ]
 localPort = 22511
 
 [services.development]
@@ -22,4 +22,4 @@ run = [ "pnpm", "--filter", "@workspace/powerpulse", "run", "serve" ]
 
 [services.env]
 PORT = "22511"
-BASE_PATH = "/"
+BASE_PATH = "/mobile/"
